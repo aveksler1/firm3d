@@ -3,12 +3,55 @@ import numpy as np
 from .._core.util import parallel_loop_bounds
 
 __all__ = [
+    "initialize_position_uniform_s_chi_grid",
     "initialize_position_uniform_surf",
     "initialize_position_profile",
     "initialize_position_uniform_vol",
     "initialize_velocity_uniform",
 ]
 
+def initialize_position_uniform_s_chi_grid(
+    field, ns, nchi, helicity_M, helicity_N
+):
+    r"""
+    Initialize particles positions uniformly in s and chi. The number of 
+    particles initialized is ns*nchi. The helicity N is not in units of nfp, and
+    is assumed to be a multiple of field period.
+
+    Args:
+        field: The :class:`BoozerMagneticField` instance.
+        ns: Number of points in s direction.
+        nchi: Number of points in chi direction.
+        helicity_M: Poloidal helicity integer for QS equilibria
+        helicity_N: Toroidal helicity integer for QS equilibria
+
+    Returns:
+        points: A numpy array of shape (ns*nchi, 3) containing the
+            initialized particle positions in Boozer coordinates (s, theta, zeta).       
+    """
+    nparticles = ns*nchi
+
+    s_grid = np.linspace(0, 1, ns)
+    
+    if helicity_M == 0: # This is QP, modB contours close poloidally
+        zeta_grid = np.linspace(0, (2*np.pi) / field.nfp, nchi, endpoint=False)
+        theta_grid = np.zeros(nchi)
+    else: # This is QA or QH
+        zeta_grid = np.zeros(nchi)
+        theta_grid = np.linspace(0, 2*np.pi, nchi, endpoint=False)
+
+    chi_grid = helicity_M*theta_grid - helicity_N*zeta_grid
+    idx = np.argsort(chi_grid % (2*np.pi))
+    theta_grid = theta_grid[idx]
+    zeta_grid = zeta_grid[idx]
+    [zeta_mesh, s_mesh] = np.meshgrid(zeta_grid, s_grid)
+    [theta_mesh, s_mesh] = np.meshgrid(theta_grid, s_grid)
+    points = np.zeros((nparticles, 3))
+    points[:, 0] = s_mesh.flatten()
+    points[:, 1] = theta_mesh.flatten()
+    points[:, 2] = zeta_mesh.flatten()
+
+    return points
 
 def initialize_position_uniform_surf(
     field, nparticles, s, ntheta_max=100, nzeta_max=100, comm=None, seed=None
