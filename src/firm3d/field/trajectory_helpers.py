@@ -1037,6 +1037,94 @@ def compute_peta(
     )
     return peta
 
+def compute_pchi(
+    field_or_saw,
+    points,
+    vpar,
+    mass,
+    charge,
+    helicity_M,
+    helicity_N,
+    helicity_Mp=None,
+    helicity_Np=None,
+):
+    r"""
+    Args:
+        field_or_saw : The BoozerMagneticField or ShearAlfvenWave instance.
+        points : A numpy array of shape (npoints,4) containing the coordinates
+                 (s,theta,zeta,t).
+            If field_or_saw is a ShearAlfvenWave, then t is the time coordinate.
+            If field_or_saw is a BoozerMagneticField, then t is ignored, and
+            points is allowed to have shape (npoints,3) for (s,theta,zeta).
+        vpar : A numpy array of shape (npoints,) containing the parallel velocity.
+        mass : Mass of the particle.
+        charge : Charge of the particle.
+        helicity_M : Poloidal helicity of the magnetic field.
+        helicity_N : Toroidal helicity of the magnetic field.
+        helicity_Mp : Poloidal helicity of the mapping coordinate eta.
+            If None, then eta is chosen based on the helicity of the field strength.
+        helicity_Np : Toroidal helicity of the mapping coordinate eta.
+            If None, then eta is chosen based on the helicity of the field strength.
+
+    Returns:
+        peta : A numpy array of shape (npoints,) containing the value of the canonical
+            momentum :math:`p_{\eta}` at each point.
+    """
+    if points.shape[1] not in [3, 4]:
+        raise ValueError(
+            "Points must have shape (npoints, 4) for (s, theta, zeta, t) or "
+            "(npoints, 3) for (s, theta, zeta)"
+        )
+    if isinstance(vpar, float):
+        vpar = np.array([vpar])
+    if isinstance(vpar, list):
+        vpar = np.array(vpar)
+    assert vpar.shape[0] == points.shape[0], (
+        "vpar must have the same number of points as points"
+    )
+
+    if isinstance(field_or_saw, ShearAlfvenWave):
+        field = field_or_saw.B0
+        field_or_saw.set_points(points)
+        alpha = field_or_saw.alpha()[:, 0]
+    else:
+        field = field_or_saw
+        alpha = 0.0
+        if points.shape == 4:
+            points = points[:, :3]
+        field.set_points(points)
+
+    modB = field.modB()[:, 0]
+    G = field.G()[:, 0]
+    I = field.I()[:, 0]
+    psi = field.psi0 * points[:, 0]
+    psip = field.psip()[:, 0]
+
+    if helicity_Mp is None and helicity_Np is None:
+        # If modB contours close poloidally, then use theta as mapping coordinate
+        if helicity_M == 0:
+            helicity_Mp = 1
+            helicity_Np = 0
+        # Otherwise, use zeta as mapping coordinate
+        else:
+            helicity_Mp = 0
+            helicity_Np = -1
+    else:
+        if (helicity_Mp * helicity_N) == (helicity_Np * helicity_M):
+            raise ValueError(
+                "Chosen helicities (N, M, N', M') do not create a well "
+                "defined Jacobian."
+            )
+    denom = helicity_Np * helicity_M - helicity_N * helicity_Mp
+    peta = (
+        (
+            (-helicity_Mp * G - helicity_Np * I) * (mass * vpar / modB + charge * alpha)
+            + charge * (helicity_Mp * psip - helicity_Np * psi)
+        )
+        / denom
+    )
+    return peta
+
 
 def compute_Eprime(saw, points, vpar, mu, mass, charge, helicity_M, helicity_N):
     r"""
