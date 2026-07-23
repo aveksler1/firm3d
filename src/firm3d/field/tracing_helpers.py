@@ -93,7 +93,17 @@ def initialize_position_uniform_surf(
     modB = field.modB()
     J = (G + iota * I) / (modB**2)
 
-    J_max = np.max(J)
+    J_vals = J.flatten()
+    if np.all(J_vals > 0):
+        sign = 1
+    elif np.all(J_vals < 0):
+        sign = -1
+    else:
+        raise ValueError(
+            "Jacobian J = (G + iota*I)/B^2 changes sign across the surface. "
+            "Cannot form a valid probability distribution for rejection sampling."
+        )
+    J_max = np.max(J_vals * sign)
 
     theta_init = []
     zeta_init = []
@@ -115,7 +125,7 @@ def initialize_position_uniform_surf(
             )
 
             # Normalize the Jacobian
-            prob_norm = J / J_max
+            prob_norm = J * sign / J_max
 
             if rand1 <= prob_norm:
                 s_init.append(s)
@@ -208,10 +218,24 @@ def initialize_position_profile(
     modB = field.modB()
     J = (G + iota * I) / (modB**2)
 
+    # The Jacobian must be single-signed over the domain for rejection sampling
+    # to work correctly.  Some equilibria have J < 0 everywhere; flip the sign
+    # so the probability weight is always positive.
+    J_vals = J[:, 0]
+    if np.all(J_vals > 0):
+        sign = 1
+    elif np.all(J_vals < 0):
+        sign = -1
+    else:
+        raise ValueError(
+            "Jacobian J = (G + iota*I)/B^2 changes sign across the domain. "
+            "Cannot form a valid probability distribution for rejection sampling."
+        )
+
     # Compute normalized profile values on the grid
     profile_values = np.array([profile(s) for s in s_grid.flatten()])
     prob_max = np.max(
-        J[:, 0] * profile_values
+        J_vals * sign * profile_values
     )  # Normalize by the maximum value of J * profile
 
     theta_init = []
@@ -235,7 +259,7 @@ def initialize_position_profile(
             )
 
             # Normalize the probability
-            prob_norm = J * profile(s) / prob_max
+            prob_norm = J * sign * profile(s) / prob_max
 
             if rand1 <= prob_norm:
                 s_init.append(s)
