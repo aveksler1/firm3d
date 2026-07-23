@@ -937,7 +937,45 @@ class TrappedPoincare:
 
         return omega_eta_prof, omega_b_prof, s_prof
 
+def compute_mu(
+    field,
+    points,
+    vpar,
+    Ekin,
+    mass
+):
+    r"""
+    Given a BoozerMagneticField instance, a point in Boozer coordinates, and
+    particle properties, compute the value of the adiabatic invariant 
+    :math:`\mu = \frac{W_\perp}{B}`. This quantity is conserved to all orders
+    in the unperturbed guiding center equations.
 
+    Args:
+        field: A BoozerMagneticField instance
+        points : A numpy array of shape (npoints,3) containing the coordinates
+                 (s,theta,zeta).
+        vpar : A numpy array of shape (npoints,) containing the parallel velocity.
+        mass : Mass of the particle.
+    """
+    if points.shape[1] not in [3, 4]:
+        raise ValueError(
+            "Points must have shape (npoints, 3) for (s, theta, zeta)"
+        )
+    if isinstance(vpar, float):
+        vpar = np.array([vpar])
+    if isinstance(vpar, list):
+        vpar = np.array(vpar)
+    assert vpar.shape[0] == points.shape[0], (
+        "vpar must have the same number of points as points"
+    )
+
+    field.set_points(points)
+    modB = field.modB()[:, 0]
+    Wpar = (1/2)*mass*vpar**2
+    mu = (Ekin - Wpar)/modB
+    
+    return mu
+    
 def compute_peta(
     field_or_saw,
     points,
@@ -1108,7 +1146,7 @@ def compute_pchi(
         # Otherwise, use zeta as mapping coordinate
         else:
             helicity_Mp = 0
-            helicity_Np = -1
+            helicity_Np = -1 
     else:
         if (helicity_Mp * helicity_N) == (helicity_Np * helicity_M):
             raise ValueError(
@@ -1124,7 +1162,6 @@ def compute_pchi(
         / denom
     )
     return peta
-
 
 def compute_Eprime(saw, points, vpar, mu, mass, charge, helicity_M, helicity_N):
     r"""
