@@ -1065,9 +1065,9 @@ def compute_peta(
                 "Chosen helicities (N, M, N', M') do not create a well "
                 "defined Jacobian."
             )
-    denom = helicity_Np * helicity_M - helicity_N * helicity_Mp
+    denom = helicity_Mp * helicity_N - helicity_M * helicity_Np
     peta = (
-        -(
+        (
             (helicity_M * G + helicity_N * I) * (mass * vpar / modB + charge * alpha)
             + charge * (helicity_N * psi - helicity_M * psip)
         )
@@ -1105,8 +1105,8 @@ def compute_pchi(
             If None, then eta is chosen based on the helicity of the field strength.
 
     Returns:
-        peta : A numpy array of shape (npoints,) containing the value of the canonical
-            momentum :math:`p_{\eta}` at each point.
+        pchi : A numpy array of shape (npoints,) containing the value of the canonical
+            momentum :math:`p_{\chi}` at each point.
     """
     if points.shape[1] not in [3, 4]:
         raise ValueError(
@@ -1153,15 +1153,17 @@ def compute_pchi(
                 "Chosen helicities (N, M, N', M') do not create a well "
                 "defined Jacobian."
             )
-    denom = helicity_Np * helicity_M - helicity_N * helicity_Mp
-    peta = (
+    denom = helicity_Mp * helicity_N - helicity_M * helicity_Np
+    pchi = (
         (
             (-helicity_Mp * G - helicity_Np * I) * (mass * vpar / modB + charge * alpha)
             + charge * (helicity_Mp * psip - helicity_Np * psi)
         )
         / denom
     )
-    return peta
+
+    return pchi
+
 
 def compute_Eprime(saw, points, vpar, mu, mass, charge, helicity_M, helicity_N):
     r"""

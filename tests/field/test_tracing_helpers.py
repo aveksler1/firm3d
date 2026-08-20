@@ -50,6 +50,7 @@ class TestTracingHelpers(unittest.TestCase):
         zeta_output = points_output[:, 2]
         chi_output = helicity_M*theta_output - helicity_N*zeta_output
         chi_output = np.sort(np.mod(chi_output, 2*np.pi))
+        assert np.allclose(s_expected, s_output)
         assert np.allclose(chi_expected, chi_output)
 
         # Check for QH equilibria
@@ -63,6 +64,7 @@ class TestTracingHelpers(unittest.TestCase):
         zeta_output = points_output[:, 2]
         chi_output = helicity_M*theta_output - helicity_N*zeta_output
         chi_output = np.sort(np.mod(chi_output, 2*np.pi))
+        assert np.allclose(s_expected, s_output)
         assert np.allclose(chi_expected, chi_output)
 
         # Check for QP equilibria
@@ -76,6 +78,7 @@ class TestTracingHelpers(unittest.TestCase):
         zeta_output = points_output[:, 2]
         chi_output = helicity_M*theta_output - helicity_N*zeta_output
         chi_output = np.sort(np.mod(chi_output, 2*np.pi))
+        assert np.allclose(s_expected, s_output)
         assert np.allclose(chi_expected, chi_output)
 
 if __name__ == "__main__":

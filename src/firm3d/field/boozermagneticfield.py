@@ -804,7 +804,7 @@ class BoozerAnalytic(BoozerMagneticField):
         psi = s * self.psi0
         r = np.sqrt(np.abs(2 * psi / self.Bbar))
         modB[:, 0] = self.B0 * (
-            1 + self.etabar * r * np.cos(thetas - self.N * zetas)
+            1 - self.etabar * r * np.cos(thetas - self.N * zetas)
         ) + np.sum(
             self.B0z[:, None]
             * np.cos(

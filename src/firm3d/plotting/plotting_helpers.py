@@ -2,7 +2,7 @@ import numpy as np
 
 from ..util.mpi import verbose
 
-__all__ = ["plot_trajectory_poloidal", "plot_trajectory_overhead_cyl"]
+__all__ = ["plot_trajectory_poloidal", "plot_trajectory_overhead_cyl", "plot_modB"]
 
 
 def plot_trajectory_poloidal(res_ty, helicity_M=1, helicity_N=0, ax=None):
