@@ -4,6 +4,8 @@ from . import (
     tracing,
     tracing_helpers,
     trajectory_helpers,
+    actions,
+    action_helpers
 )
 
 __all__ = (
@@ -12,4 +14,6 @@ __all__ = (
     + tracing_helpers.__all__
     + trajectory_helpers.__all__
     + coordinates.__all__
+    + actions.__all__
+    + action_helpers.__all__
 )
