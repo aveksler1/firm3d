@@ -19,7 +19,9 @@ filename_jchi_error = str(
 class TestJchiAction(unittest.TestCase):
     """
     Test the JchiAction class at mu = 0 by comparing the numerical, 0th order
-    analytical, and 1st order analytical actions to a test file 
+    analytical, and 1st order analytical actions to a test file. The test
+    computes the actions for a specific set of reactor parameters for a 
+    BoozerAnalytic field, and compares to a reference file.
     """
     def test_jchi(self):
         # Initialize reactor / field paratmers
