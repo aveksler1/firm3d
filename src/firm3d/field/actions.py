@@ -39,7 +39,7 @@ class JchiAction(object):
     All calculations are done with the assuption that the particle is purely
     passing ($\mu = 0$).
     """
-    def __init__(self, Ekin, mass, q, outdir, subdir=None):
+    def __init__(self, Ekin, mass, q, outdir=None, subdir=None):
         """
         ComputingJChi class is initialized with 3 physical parameters that 
         determine the type of particle and its energy. 
@@ -69,7 +69,8 @@ class JchiAction(object):
         
         self.outdir = outdir
         self.subdir = subdir
-        os.makedirs(self.outdir, exist_ok=True)
+        if self.outdir:
+            os.makedirs(self.outdir, exist_ok=True)
         if self.subdir:
             os.makedirs(os.path.join(self.outdir, self.subdir), exist_ok=True)
 
