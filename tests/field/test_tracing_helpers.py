@@ -8,9 +8,10 @@ from firm3d.field.tracing_helpers import (
     initialize_position_uniform_s_chi_grid
 )
 
-# TEST_DIR = (Path(__file__).parent / ".." / "test_files").resolve()
-# TODO: Add proper file testing path
-filename = "/Users/aveksler/work/repositories/firm3d/examples/inputs/boozmn_aten_rescaled.nc"
+TEST_DIR = (Path(__file__).parent / ".." / "test_files").resolve()
+filename = str(
+    (TEST_DIR / "boozmn_LandremanPaul2021_QA_lowres.nc").resolve()
+)
 
 class TestTracingHelpers(unittest.TestCase):
     """Test tracing_helpers.py functions."""
